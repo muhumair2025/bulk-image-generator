@@ -1,0 +1,5 @@
+{
+  "name": "Visionary Bulk Image Gen",
+  "description": "A professional-grade bulk image generation tool powered by Gemini 3 Pro Vision, allowing users to generate high-quality images from multiple prompts simultaneously.",
+  "requestFramePermissions": []
+}
