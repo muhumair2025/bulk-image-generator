@@ -1,7 +1,15 @@
 
 export const parsePrompts = (input: string): string[] => {
-  // Support formats: "1:", "Prompt 1:", "Prompt1:", "Prompt:", "- ", "1. ", "P1:"
-  const markerRegex = /^(?:Prompt\s*\d+[:\s]|Prompt[:\s]|\d+[:\s]|\d+\.\s+|-\s+|P\d+[:\s])/i;
+  /**
+   * Supported formats:
+   * - 1: My prompt
+   * - Prompt 1: My prompt
+   * - Prompt:1 My prompt
+   * - P1: My prompt
+   * - 1. My prompt
+   * - - My prompt
+   */
+  const markerRegex = /^(?:Prompt[:\s]\d+|Prompt\s*\d+[:\s]|Prompt[:\s]|\d+[:\s]|\d+\.\s+|-\s+|P\d+[:\s])/i;
   
   const lines = input.split('\n');
   const prompts: string[] = [];

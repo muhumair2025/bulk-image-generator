@@ -15,7 +15,8 @@ import {
   Layers,
   Settings2,
   Box,
-  Monitor
+  Monitor,
+  Info
 } from 'lucide-react';
 import { GeneratedImage, GenerationStatus, AspectRatio } from './types';
 import { GeminiImageService } from './services/geminiService';
@@ -135,17 +136,20 @@ const App: React.FC = () => {
           <div className="bg-blue-600 p-1.5 rounded-lg">
             <Layers className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-white text-sm tracking-tight">VISIONARY<span className="text-blue-500 opacity-50 ml-1">BULK</span></span>
+          <span className="font-bold text-white text-sm tracking-tight uppercase">VISIONARY<span className="text-blue-500 opacity-50 ml-1">BULK</span></span>
         </div>
 
         <div className="flex items-center gap-4">
           {status === GenerationStatus.GENERATING && (
             <div className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
               <Loader2 className="w-3 h-3 text-blue-400 animate-spin" />
-              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">{progress.current}/{progress.total}</span>
+              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest tabular-nums">{progress.current}/{progress.total}</span>
             </div>
           )}
-          <button onClick={() => setImages([])} className="p-2 text-zinc-600 hover:text-red-400 transition-colors">
+          <button 
+            onClick={() => { if(window.confirm("Clear all items?")) setImages([]); }} 
+            className="p-2 text-zinc-600 hover:text-red-400 transition-colors"
+          >
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -158,20 +162,35 @@ const App: React.FC = () => {
           <div className="bg-[#121214] rounded-2xl p-5 border border-white/5 sticky top-20">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xs font-bold text-zinc-100 uppercase tracking-widest flex items-center gap-2">
-                <Box className="w-3 h-3 text-blue-500" /> Queue Manager
+                <Box className="w-3 h-3 text-blue-500" /> Input Engine
               </h2>
+              <div className="group relative">
+                <Info className="w-4 h-4 text-zinc-600 hover:text-blue-500 cursor-help transition-colors" />
+                <div className="absolute right-0 top-6 w-56 bg-[#18181b] border border-white/10 p-3 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 text-[10px] leading-relaxed">
+                  <span className="text-zinc-100 font-bold block mb-2 uppercase tracking-widest">Supported Formats:</span>
+                  <ul className="space-y-1 text-zinc-400 font-medium">
+                    <li><code className="text-blue-400 bg-blue-500/5 px-1 rounded">1:</code> Prompt text</li>
+                    <li><code className="text-blue-400 bg-blue-500/5 px-1 rounded">Prompt 1:</code> Prompt text</li>
+                    <li><code className="text-blue-400 bg-blue-500/5 px-1 rounded">Prompt:1</code> Prompt text</li>
+                    <li><code className="text-blue-400 bg-blue-500/5 px-1 rounded">P1:</code> Prompt text</li>
+                    <li><code className="text-blue-400 bg-blue-500/5 px-1 rounded">1.</code> Prompt text</li>
+                    <li><code className="text-blue-400 bg-blue-500/5 px-1 rounded">-</code> Bullet points</li>
+                  </ul>
+                  <p className="mt-2 pt-2 border-t border-white/5 italic text-zinc-500">Multilines are automatically detected.</p>
+                </div>
+              </div>
             </div>
 
             <textarea
-              className="w-full h-72 bg-[#18181b] border border-white/5 rounded-xl p-4 text-sm focus:ring-1 focus:ring-blue-500/50 outline-none transition-all custom-scrollbar font-medium text-zinc-100 placeholder:text-zinc-700 leading-relaxed"
-              placeholder="1: Prompt here..."
+              className="w-full h-80 bg-[#18181b] border border-white/5 rounded-xl p-4 text-[13px] focus:ring-1 focus:ring-blue-500/50 outline-none transition-all custom-scrollbar font-medium text-zinc-100 placeholder:text-zinc-700 leading-relaxed"
+              placeholder="1: Cyberpunk neon street...&#10;2: Surreal cloud castle...&#10;3: Golden hour mountain..."
               value={rawPrompts}
               onChange={(e) => setRawPrompts(e.target.value)}
             />
 
             <div className="mt-5 space-y-4">
               <div>
-                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest block mb-2">Aspect Format</span>
+                <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest block mb-2">Image Dimensions</span>
                 <div className="grid grid-cols-2 gap-2">
                   {ratios.map(r => (
                     <button
@@ -192,12 +211,19 @@ const App: React.FC = () => {
               <button
                 onClick={handleGenerate}
                 disabled={status === GenerationStatus.GENERATING || !rawPrompts.trim()}
-                className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-bold py-3.5 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-20 disabled:grayscale"
+                className="w-full bg-zinc-100 hover:bg-white text-zinc-950 font-bold py-3.5 rounded-xl text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-20 disabled:grayscale shadow-xl shadow-white/5"
               >
                 {status === GenerationStatus.GENERATING ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
-                Initialize Batch
+                Run Pipeline
               </button>
             </div>
+          </div>
+          
+          <div className="bg-blue-500/5 border border-blue-500/10 rounded-xl p-4 flex gap-3">
+             <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+             <p className="text-[10px] leading-relaxed text-zinc-500">
+               <strong className="text-zinc-300">Pro Tip:</strong> You can mix formats. For example, use <code className="text-blue-400">P1:</code> for one and <code className="text-blue-400">2:</code> for another. The parser is built to identify your vision regardless of style.
+             </p>
           </div>
         </aside>
 
@@ -205,19 +231,19 @@ const App: React.FC = () => {
         <section className="lg:col-span-8">
           <div className="flex items-center gap-2 mb-6">
             <Monitor className="w-4 h-4 text-zinc-600" />
-            <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">Neural Stream</h2>
+            <h2 className="text-sm font-bold text-zinc-100 uppercase tracking-widest">Synthetic Output</h2>
             <div className="h-[1px] flex-grow bg-white/5 ml-2"></div>
           </div>
 
           {images.length === 0 ? (
-            <div className="h-96 flex flex-col items-center justify-center border border-dashed border-white/5 rounded-[2rem] bg-[#121214]/30">
+            <div className="h-[500px] flex flex-col items-center justify-center border border-dashed border-white/5 rounded-[2.5rem] bg-[#121214]/30">
               <ImageIcon className="w-12 h-12 text-zinc-800 mb-4" />
-              <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest">Awaiting prompt sequence</p>
+              <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.3em]">Neural buffer empty</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {images.map((img) => (
-                <article key={img.id} className="group bg-[#121214] rounded-2xl border border-white/5 overflow-hidden flex flex-col transition-all hover:border-white/10">
+                <article key={img.id} className="group bg-[#121214] rounded-2xl border border-white/5 overflow-hidden flex flex-col transition-all hover:border-white/10 shadow-2xl shadow-black/20">
                   <div className={`relative bg-[#09090b] overflow-hidden cursor-zoom-in aspect-square`}>
                     {img.status === 'processing' && (
                       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#09090b]/80 backdrop-blur-md">
@@ -232,6 +258,7 @@ const App: React.FC = () => {
                       <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center text-red-500">
                         <AlertCircle className="w-8 h-8 mb-2 opacity-50" />
                         <span className="text-[9px] font-black uppercase tracking-widest">System Breach</span>
+                        <p className="text-[8px] mt-2 opacity-50 max-w-[150px] line-clamp-1">{img.error}</p>
                       </div>
                     )}
 
@@ -246,7 +273,7 @@ const App: React.FC = () => {
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={(e) => { e.stopPropagation(); downloadImage(img); }}
-                            className="p-2.5 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl hover:bg-zinc-800 text-white shadow-2xl"
+                            className="p-2.5 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl hover:bg-zinc-800 text-white shadow-2xl active:scale-90"
                           >
                             <Download className="w-4 h-4" />
                           </button>
@@ -254,7 +281,7 @@ const App: React.FC = () => {
                         <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
                             onClick={() => setPreviewImage(img)}
-                            className="p-2.5 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl hover:bg-zinc-800 text-white shadow-2xl"
+                            className="p-2.5 bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-xl hover:bg-zinc-800 text-white shadow-2xl active:scale-90"
                           >
                             <Maximize2 className="w-4 h-4" />
                           </button>
@@ -267,13 +294,13 @@ const App: React.FC = () => {
                   </div>
 
                   <div className="p-4 flex flex-col flex-grow">
-                    <p className="text-xs font-medium text-zinc-400 leading-relaxed line-clamp-2 min-h-[2.5rem] mb-3">
+                    <p className="text-[11px] font-medium text-zinc-400 leading-relaxed line-clamp-2 min-h-[2.5rem] mb-3">
                       {img.prompt}
                     </p>
                     <div className="mt-auto flex items-center justify-between opacity-40 group-hover:opacity-100 transition-opacity border-t border-white/5 pt-3">
-                      <span className="text-[9px] font-bold uppercase tabular-nums tracking-widest">#{img.id.slice(0, 4)}</span>
+                      <span className="text-[9px] font-bold uppercase tabular-nums tracking-widest">UID: {img.id.slice(0, 6)}</span>
                       <div className="flex gap-2">
-                        <button onClick={() => navigator.clipboard.writeText(img.prompt)} className="hover:text-blue-500">
+                        <button onClick={() => navigator.clipboard.writeText(img.prompt)} className="hover:text-blue-500 transition-colors">
                           <Copy className="w-3.5 h-3.5" />
                         </button>
                         {img.status === 'completed' && <CheckCircle className="w-3.5 h-3.5 text-green-500" />}
@@ -290,7 +317,7 @@ const App: React.FC = () => {
       {/* Full Screen Preview Modal */}
       {previewImage && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-10 animate-in fade-in duration-300"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl p-4 md:p-10 animate-in fade-in duration-300"
           onClick={() => setPreviewImage(null)}
         >
           <button className="absolute top-6 right-6 p-4 text-white/40 hover:text-white transition-colors">
@@ -305,22 +332,22 @@ const App: React.FC = () => {
                 alt="Preview"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex items-end">
-                <p className="text-sm font-medium text-white/90 leading-relaxed max-w-2xl">{previewImage.prompt}</p>
+                <p className="text-xs font-medium text-white/90 leading-relaxed max-w-2xl uppercase tracking-wider">{previewImage.prompt}</p>
               </div>
             </div>
 
             <div className="flex gap-4">
               <button 
                 onClick={() => downloadImage(previewImage)}
-                className="bg-white text-zinc-950 px-8 py-3.5 rounded-2xl font-bold flex items-center gap-3 active:scale-95 transition-all text-sm uppercase tracking-widest shadow-xl shadow-white/10"
+                className="bg-white text-zinc-950 px-8 py-3.5 rounded-2xl font-bold flex items-center gap-3 active:scale-95 transition-all text-[11px] uppercase tracking-widest shadow-xl shadow-white/10"
               >
-                <Download className="w-5 h-5" /> Save Image
+                <Download className="w-5 h-5" /> Save Final Asset
               </button>
               <button 
                 onClick={() => setPreviewImage(null)}
-                className="bg-zinc-800 text-white px-8 py-3.5 rounded-2xl font-bold active:scale-95 transition-all text-sm uppercase tracking-widest border border-white/5"
+                className="bg-zinc-800 text-white px-8 py-3.5 rounded-2xl font-bold active:scale-95 transition-all text-[11px] uppercase tracking-widest border border-white/5"
               >
-                Close
+                Dismiss
               </button>
             </div>
           </div>
@@ -328,7 +355,8 @@ const App: React.FC = () => {
       )}
 
       <footer className="mt-20 py-10 text-center opacity-20 hover:opacity-100 transition-opacity">
-        <span className="text-[10px] font-black uppercase tracking-[0.4em]">Proprietary Generation Pipeline v2.5</span>
+        <span className="text-[9px] font-black uppercase tracking-[0.5em] block">Vision Pipeline v3.0 // Nano Banana Architecture</span>
+        <span className="text-[8px] font-bold text-zinc-500 mt-2 block italic uppercase tracking-widest">Optimized for high-concurrency neural rendering</span>
       </footer>
     </div>
   );
